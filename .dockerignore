@@ -1,0 +1,10 @@
+__pycache__
+.git
+.idea
+*.log
+*.csv
+*.yaml
+*.json
+*.iml
+.vscode
+*.md

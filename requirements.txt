@@ -1,0 +1,5 @@
+# TODO define versions!
+requests
+python-Levenshtein
+click
+pyyaml
