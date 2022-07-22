@@ -3,7 +3,6 @@ import os
 
 import yaml
 
-import guards
 import logger
 from cleaner import TopicsCleaner
 from gitlab import GitLab
@@ -22,23 +21,16 @@ def configure_gitlab():
 
 
 def configure_cleaner(gitlab, config_path, apply=False):
-    guards.against_none(config_path, "Cleaner configuration path")
-    config = __read_config(config_path)
-    config = {topic['topic']: topic['synonyms'] for topic in config}
+    config = None
+    if config_path is not None:
+        config = __read_config(config_path)
+        config = {topic['topic']: topic['synonyms'] for topic in config}
     apply = apply if apply else os.getenv('DRY_RUN')
     return TopicsCleaner(gitlab, config, apply if apply else False)
-    # return TopicsCleaner(
-    #     gitlab, {
-    #         'not-validated': ['non-validated', 'not validated', 'nor-validated', 'not-vaildated', 'unvailidated'],
-    #         'aws': ['amazon web services'],
-    #         'backend': ['back-end']
-    #     }, dry_run if dry_run else False
 
 
 def configure_synonyms_identifier(gitlab):
-    return SimilarTopicsIdentifier(gitlab, discard_patterns=['^timo2022.*', '^pja220.*', '^feiyun.*', '^dev-.*',
-                                                             '^bielinsl-.*'])
-    # return SimilarTopicsIdentifier(gitlab)
+    return SimilarTopicsIdentifier(gitlab)
 
 
 def __read_config(config_path):

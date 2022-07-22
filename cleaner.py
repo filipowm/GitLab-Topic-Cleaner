@@ -6,7 +6,6 @@ class TopicsCleaner(object):
 
     def __init__(self, gitlab, topics_config, apply=False):
         guards.against_none(gitlab, "GitLab client")
-        guards.against_none(topics_config, "Topics configuration")
         self.topics_config = topics_config
         self._topics = []
         self.apply = apply
@@ -32,9 +31,10 @@ class TopicsCleaner(object):
         for topic in topics_to_clean:
             self.__remove_topic(topic)
         if self.apply:
-            logger.info(f"{len(topics_to_clean)} were removed", color=logger.GREEN)
+            logger.info(f"{len(topics_to_clean)} topics were removed", color=logger.GREEN)
         else:
-            logger.info(f"{len(topics_to_clean)} would be removed, but running in dry-run mode.", color=logger.GREEN)
+            logger.info(f"{len(topics_to_clean)} topics would be removed, but running in dry-run mode.",
+                        color=logger.GREEN)
 
     def __map_to_synonyms(self, topics):
         mapped = {}
@@ -50,6 +50,7 @@ class TopicsCleaner(object):
 
     def migrate_synonyms(self):
         logger.info('Synonymous topics will be migrated to their primary form.', color=logger.BLUE)
+        guards.against_none(self.topics_config, "Topics and their synonyms configuration")
         guards.against_empty(self.topics_config, "Topics and their synonyms configuration")
         topics = self.__read_topics()
         topics_to_migrate = self.__map_to_synonyms(topics)
@@ -61,7 +62,7 @@ class TopicsCleaner(object):
             for topic in synonyms:
                 logger.info()
                 projects = self.gitlab.get(path='projects', params={'topic': topic.title, 'per_page': 100})
-                logger.info(f"Migrating synonym {topic.title} to {main_topic.title} in {len(projects)} projects")
+                logger.info(f"Migrating synonym '{topic.title}' to '{main_topic.title}' in {len(projects)} projects")
                 for project in projects:
                     logger.debug(
                         f"Migrating '{topic.title}' synonym to '{main_topic.title}' in '{project['name']}' project")

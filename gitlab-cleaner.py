@@ -9,7 +9,7 @@ gitlab = None
 
 
 @click.group()
-@click.option('--debug/--no-debug', default=False, show_default=True)
+@click.option('--debug', default=False, is_flag=True, show_default=True, help="Enable debug mode")
 def cli(debug):
     logging_level = logging.DEBUG if debug else logging.INFO
     logging.basicConfig(level=logging_level)
@@ -17,7 +17,8 @@ def cli(debug):
         logger.warn('Turning on debug mode')
 
 
-@cli.command()
+@cli.command(
+    help="Cleanup unused topics and/or migrate synonyms to their primary form. Requires additional configuration.")
 @click.option('-a', '--apply',
               help='Use to apply changes. Without this flag, no changes will be done on remote GitLab.',
               is_flag=True,
@@ -50,8 +51,8 @@ def cleanup(apply, topics_config_path, remove_unused):
         cleaner.remove_empty()
 
 
-@cli.command()
-@click.option('-o', '--output', help='Path of file to output results as CSV',
+@cli.command(help="Identify similar or mis-spelled topics.")
+@click.option('-o', '--output', help='Path where results will be written as CSV',
               type=click.Path(exists=False, writable=True))
 def find_similar(output):
     synonyms_identifier = configure_synonyms_identifier(gitlab)
